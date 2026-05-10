@@ -363,6 +363,15 @@ func (srv *Server) ServeRequest(f func(r *sip.Request)) {
 	srv.requestMiddlewares = append(srv.requestMiddlewares, f)
 }
 
+// OnResponse registers a response middleware that is called for every SIP
+// response received on the transport layer. This is useful for intercepting
+// responses to requests sent outside of sipgo's client transaction layer
+// (e.g. INVITE sent directly via conn.WriteMsg for persistent endpoints).
+// SONIQ addition: enables EndpointWriter to handle 180/200/ACK for persistent TLS INVITEs.
+func (srv *Server) OnResponse(f func(r *sip.Response)) {
+	srv.responseMiddlewares = append(srv.responseMiddlewares, f)
+}
+
 func (srv *Server) onTransportMessage(m sip.Message) {
 	//Register transport middleware
 	// this avoids allocations and it forces devs to avoid sip.Message usage
